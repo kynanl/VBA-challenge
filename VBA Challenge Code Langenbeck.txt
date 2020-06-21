@@ -1,0 +1,178 @@
+Sub Alpha_Testing()
+    
+    
+
+    ' Loop through all of the worksheets in the active workbook.
+    For Each ws In Worksheets
+    
+    Summary_Table_Row = ws.Cells(Rows.Count, "I").End(xlUp).Row + 1
+    MsgBox Summary_Table_Row
+
+         
+    'Declare Variables
+    Dim Ticker As String
+    Dim Yearly_Change, Day_1_Open As Double
+    Dim Percent_Change As Double
+    Dim Last_Day_Close As Double
+    Dim Total_Volume As LongLong
+    Dim Last_Row As Long
+    
+    
+    Day_1_Open = 0
+    Last_Day_Close = 0
+    Total_Volume = 0
+    Last_Row = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    
+
+    'loop through each row in worksheets extracting performance data
+        For I = 2 To Last_Row
+            
+            
+            If ws.Cells(I - 1, 1).Value <> ws.Cells(I, 1).Value Then
+                Ticker = ws.Cells(I, 1).Value
+                Day_1_Open = Day_1_Open + ws.Cells(I, 3).Value
+            
+            Else
+                Total_Volume = Total_Volume + ws.Cells(I, 7).Value
+        
+            End If
+    
+             If ws.Cells(I + 1, 1).Value <> ws.Cells(I, 1).Value Then
+                Last_Day_Close = ws.Cells(I, 6)
+ 		
+	'Assign values to variables
+                Total_Volume = Total_Volume + ws.Cells(I, 7).Value
+                
+                Yearly_Change = Last_Day_Close - Day_1_Open
+                
+                
+                If Day_1_Open > 0 Then
+                Percent_Change = Yearly_Change / Day_1_Open
+            
+          
+            
+            
+        'move data to summary table
+        
+            ws.Range("I" & Summary_Table_Row).Value = Ticker
+    
+    
+            ws.Range("J" & Summary_Table_Row).Value = Yearly_Change
+        
+            ws.Range("K" & Summary_Table_Row).Value = Percent_Change
+            
+            ws.Range("L" & Summary_Table_Row).Value = Total_Volume
+           
+
+            End If
+        
+      
+        
+     'Reset variables
+             
+        Total_Volume = 0
+        Day_1_Open = 0
+        Last_Day_Close = 0
+        Yearly_Change = 0
+        Summary_Table_Row = Summary_Table_Row + 1
+        
+      End If
+      Next I
+      'Create Summary Table fomatting
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Range("I1:L1").AutoFormat
+        
+      MsgBox ws.Name
+      Next ws
+      
+      
+      
+      
+    
+    
+        
+       
+  End Sub
+  
+  Sub Challenge_Summary():
+  ' Loop through all of the worksheets in the active workbook.
+    	For Each ws In Worksheets
+      
+ 'Declare Variables
+    	Dim Highest_Return, Highest_Volume As Double
+    	Dim Lowest_Return As Double
+    	Dim Ticker_Highest_Return, Ticker_Lowest_Return, Ticker_Highest_Volume As String
+    	Dim Last_Row As Long
+    
+    
+    Last_Row = ws.Cells(Rows.Count, 10).End(xlUp).Row
+    Highest_Return = Application.WorksheetFunction.Max(Range(ws.Cells(2, 11), ws.Cells(Last_Row, 11)))
+    Lowest_Return = Application.WorksheetFunction.Min(Range(ws.Cells(2, 11), ws.Cells(Last_Row, 11)))
+    Highest_Volume = Application.WorksheetFunction.Max(Range(ws.Cells(2, 12), ws.Cells(Last_Row, 12)))
+ 
+'Loop through rows
+     For I = 2 To Last_Row
+     
+     
+    'Create conditional formatting to color code positive and negative performance
+        If ws.Cells(I, 10).Value >= 0 Then
+                ws.Cells(I, 10).Interior.ColorIndex = 4
+        Else
+            ws.Cells(I, 10).Interior.ColorIndex = 3
+        End If
+        
+     'Find performance variables
+        If ws.Cells(I, 11).Value = Highest_Return Then
+            Ticker_Highest_Return = ws.Cells(I, 9).Value
+            
+            End If
+            
+        If ws.Cells(I, 11).Value = Lowest_Return Then
+            Ticker_Lowest_Return = ws.Cells(I, 9).Value
+               
+        End If
+        
+        If ws.Cells(I, 12).Value = Highest_Volume Then
+        Ticker_Highest_Volume = ws.Cells(I, 9).Value
+        
+        End If
+        Next I
+  'Move perfromance data to summary area 
+    ws.Cells(2, 16).Value = Ticker_Highest_Return
+    ws.Cells(2, 17).Value = Highest_Return
+    ws.Cells(2, 17).Style = "Percent"
+    ws.Cells(3, 16).Value = Ticker_Lowest_Return
+    ws.Cells(3, 17).Value = Lowest_Return
+    ws.Cells(4, 16).Value = Ticker_Highest_Volume
+    ws.Cells(4, 17).Value = Highest_Volume
+    ws.Cells(3, 17).Style = "Percent"
+    ws.Cells(1, 16).Value = "Ticker"
+    ws.Cells(1, 17).Value = "Value"
+    ws.Cells(2, 15).Value = "Greatest % Increase"
+    ws.Cells(3, 15).Value = "Greatest % Decrease"
+    ws.Cells(4, 15).Value = "Greatest Total Volume"
+    ws.Range("P1:P4").AutoFormat
+    ws.Range("O2:O4").AutoFormat
+    ws.Range("Q1:Q4").AutoFormat
+
+'Format % Perfromance column
+    ws.Range(ws.Cells(2, 11), ws.Cells(Last_Row, 11)).Style = "Percent"
+    
+'zero out variables
+    Ticker_Highest_Return = 0
+    Highest_Return = 0
+    Ticker_Lowest_Return = 0
+    Lowest_Return = 0
+    Ticker_Highest_Volume = 0
+    Highest_Volume = 0
+    
+    
+    Next ws
+    
+            
+   End Sub
+
+ 
